@@ -6,7 +6,44 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    const responseHandler = (xhr) => {
+        const content = document.querySelector('#content');
+        const contentType = xhr.getResponseHeader('content-type');
+        
+        let msg = '';
+        
+        if (contentType == 'application/json') {
+            msg = JSON.parse(xhr.response).message;
+        }
+        else {
+            msg = xhr.responseXML.querySelector('message').textContent;
+        }        
+        
+        content.textContent = `Message: ${msg}`;
+    };
+    
+    const ajaxRequest = (page, type) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.open('GET', page);
+        xhr.setRequestHeader("accept", type);
+        
+        xhr.onload = () => responseHandler(xhr);
+        
+        xhr.send();
+    };
 
+    const init = () => {
+        const page = document.querySelector('#page');
+        const type = document.querySelector('#type');
+        const send = document.querySelector('#send');
+
+        send.addEventListener('click', () => {
+            ajaxRequest(page.value, type.value);
+        });
+    };
+
+    window.onload = init;
   </script>
 </head>
 <body>
